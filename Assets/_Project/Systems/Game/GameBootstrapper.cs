@@ -6,10 +6,21 @@ namespace Project.Systems.Game
 {
     public class GameBootstrapper : MonoBehaviour
     {
+        // Singleton instance to prevent duplicates across scenes
+        public static GameBootstrapper Instance { get; private set; }
+
         public GameSession Session { get; private set; }
 
         private void Awake()
         {
+            // If another instance exists, destroy this duplicate and do nothing
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
             DontDestroyOnLoad(gameObject);
 
             var daySystem = new DaySystem();
