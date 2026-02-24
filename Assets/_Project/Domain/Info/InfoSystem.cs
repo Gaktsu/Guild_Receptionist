@@ -122,6 +122,11 @@ namespace Project.Systems.Info
                 return false;
             }
 
+            if (info.Credibility >= 100)
+            {
+                return false;
+            }
+
             if (!_actionPointSystem.TryConsume(1))
             {
                 return false;
