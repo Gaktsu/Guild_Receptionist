@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Project.Core.Random;
 using Project.Domain.Info;
+using Project.Systems.Player;
 
 namespace Project.Systems.Info
 {
@@ -26,8 +27,19 @@ namespace Project.Systems.Info
         };
 
         private readonly List<InfoData> _todayInfos = new List<InfoData>();
+        private ActionPointSystem _actionPointSystem;
 
         public IReadOnlyList<InfoData> TodayInfos => _todayInfos;
+
+        public InfoSystem(ActionPointSystem actionPointSystem)
+        {
+            _actionPointSystem = actionPointSystem ?? throw new ArgumentNullException(nameof(actionPointSystem));
+        }
+
+        public void SetActionPointSystem(ActionPointSystem actionPointSystem)
+        {
+            _actionPointSystem = actionPointSystem ?? throw new ArgumentNullException(nameof(actionPointSystem));
+        }
 
         /// <summary>
         /// Creates six deterministic infos for the given day using the provided RNG.
@@ -106,6 +118,11 @@ namespace Project.Systems.Info
         {
             var info = FindMutableInfo(infoId);
             if (info == null)
+            {
+                return false;
+            }
+
+            if (!_actionPointSystem.TryConsume(1))
             {
                 return false;
             }
