@@ -1,5 +1,6 @@
 using System;
 using Project.Core.Random;
+using Project.Domain.Quest;
 using Project.Domain.Save;
 using Project.Systems.Day;
 using Project.Systems.Player;
@@ -80,6 +81,24 @@ namespace Project.Systems.Game
             };
 
             _saveSystem.Save(data);
+        }
+
+
+        public void ApplyWorldDelta(WorldDelta delta)
+        {
+            if (delta == null)
+            {
+                return;
+            }
+
+            WorldState = new WorldStateData
+            {
+                Reputation = WorldState.Reputation + delta.Reputation,
+                Stability = WorldState.Stability + delta.Stability,
+                Budget = WorldState.Budget + delta.Budget,
+                Influence = WorldState.Influence + delta.Influence,
+                Casualties = WorldState.Casualties + delta.Casualties
+            };
         }
 
         /// <summary>

@@ -14,6 +14,10 @@ namespace Project.Systems.Game
         public static GameBootstrapper Instance { get; private set; }
 
         public GameSession Session { get; private set; }
+        public InfoSystem InfoSystem { get; private set; }
+        public QuestSystem QuestSystem { get; private set; }
+
+        private DayFlowOrchestrator _dayFlowOrchestrator;
 
         private void Awake()
         {
@@ -31,8 +35,18 @@ namespace Project.Systems.Game
             var saveSystem = new SaveSystem();
 
             Session = new GameSession(daySystem, saveSystem);
+            InfoSystem = new InfoSystem(Session.ActionPointSystem);
+            QuestSystem = new QuestSystem();
+
             Session.StartOrLoad();
 
+            _dayFlowOrchestrator = gameObject.AddComponent<DayFlowOrchestrator>();
+            _dayFlowOrchestrator.Init(
+                Session,
+                daySystem,
+                InfoSystem,
+                Session.ActionPointSystem,
+                QuestSystem);
             // // ──────────────────────────────────────────────
             // // [임시 테스트] InfoSystem.StartDay() 동작 확인용
             // // 추후 정식 흐름이 완성되면 제거할 수 있음
