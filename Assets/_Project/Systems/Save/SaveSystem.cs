@@ -50,7 +50,20 @@ namespace Project.Systems.Save
 
             try
             {
-                return JsonUtility.FromJson<SaveGameData>(json);
+                var data = JsonUtility.FromJson<SaveGameData>(json);
+                if (data == null)
+                {
+                    return null;
+                }
+
+                // Legacy migration: saves created before CurrentAP existed deserialize this int as 0.
+                // When the field is missing, default AP to max-day value so users do not lose a day.
+                if (!json.Contains("\"CurrentAP\"", StringComparison.Ordinal))
+                {
+                    data.CurrentAP = 5;
+                }
+
+                return data;
             }
             catch (ArgumentException)
             {
