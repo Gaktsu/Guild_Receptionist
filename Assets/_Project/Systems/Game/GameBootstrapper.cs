@@ -1,8 +1,8 @@
 using Project.Systems.Day;
 using Project.Systems.Info;
-
 using Project.Systems.Quest;
 using Project.Systems.Save;
+using Project.UI.Panels;
 using UnityEngine;
 
 namespace Project.Systems.Game
@@ -15,6 +15,8 @@ namespace Project.Systems.Game
         public GameSession Session { get; private set; }
         public InfoSystem InfoSystem { get; private set; }
         public QuestSystem QuestSystem { get; private set; }
+
+        [SerializeField] private InfoPanel _infoPanel;
 
         private DayFlowOrchestrator _dayFlowOrchestrator;
 
@@ -47,6 +49,10 @@ namespace Project.Systems.Game
                 Session.ActionPointSystem,
                 QuestSystem);
 
+            if (_infoPanel != null)
+            {
+                _infoPanel.Init(InfoSystem, Session.ActionPointSystem, daySystem);
+            }
             Debug.Log($"[GameBootstrapper] 초기화 완료 — Day {Session.CurrentDay}, AP {Session.ActionPointSystem.CurrentAP}/{Session.ActionPointSystem.MaxAP}, State: {daySystem.CurrentState}");
         }
 
