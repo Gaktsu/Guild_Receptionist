@@ -91,24 +91,39 @@ namespace Project.Systems.Day
 
         private void HandleStateChanged(DayState state)
         {
+            Debug.Log($"[DayFlow] ──── {state} 진입 ────");
+
             switch (state)
             {
                 case DayState.DayStart:
                     _apSystem.StartDay();
                     _infoSystem.StartDay(_session.CreateDayRng(), _session.CurrentDay);
+                    Debug.Log($"[DayFlow] DayStart 완료 — Day {_session.CurrentDay}, Info {_infoSystem.TodayInfos.Count}개 생성, AP={_apSystem.CurrentAP}/{_apSystem.MaxAP}");
+                    for (var i = 0; i < _infoSystem.TodayInfos.Count; i++)
+                    {
+                        var info = _infoSystem.TodayInfos[i];
+                        Debug.Log($"[DayFlow]   Info[{i + 1}] {info.Id} | {info.Title} | 신뢰도: {info.Credibility}");
+                    }
                     _daySystem.TrySetState(DayState.InfoPhase);
                     break;
                 case DayState.InfoPhase:
+                    Debug.Log("[DayFlow] InfoPhase — 정보 조사/채택/폐기 가능. ContextMenu 'Next State'로 다음 단계 진행.");
                     break;
                 case DayState.QuestDraftPhase:
+                    Debug.Log("[DayFlow] QuestDraftPhase — 퀘스트 초안 작성 단계.");
                     break;
                 case DayState.SubmissionPhase:
+                    Debug.Log("[DayFlow] SubmissionPhase — 퀘스트 제출 단계.");
                     break;
                 case DayState.ResolutionPhase:
+                    Debug.Log("[DayFlow] ResolutionPhase — 퀘스트 판정 시작...");
                     ResolvePhase();
+                    Debug.Log($"[DayFlow] ResolutionPhase 완료 — WorldState: 평판={_session.WorldState.Reputation}, 안정={_session.WorldState.Stability}, 예산={_session.WorldState.Budget}");
                     break;
                 case DayState.DayEnd:
+                    var prevDay = _session.CurrentDay;
                     _session.NextDay();
+                    Debug.Log($"[DayFlow] DayEnd — Day {prevDay} → Day {_session.CurrentDay} 으로 전환, 저장 완료");
                     break;
             }
         }
