@@ -1,4 +1,6 @@
 using Project.Systems.Day;
+using Project.Systems.Info;
+using Project.Systems.Quest;
 using Project.Systems.Save;
 using UnityEngine;
 
@@ -10,6 +12,10 @@ namespace Project.Systems.Game
         public static GameBootstrapper Instance { get; private set; }
 
         public GameSession Session { get; private set; }
+        public InfoSystem InfoSystem { get; private set; }
+        public QuestSystem QuestSystem { get; private set; }
+
+        private DayFlowOrchestrator _dayFlowOrchestrator;
 
         private void Awake()
         {
@@ -27,7 +33,18 @@ namespace Project.Systems.Game
             var saveSystem = new SaveSystem();
 
             Session = new GameSession(daySystem, saveSystem);
+            InfoSystem = new InfoSystem(Session.ActionPointSystem);
+            QuestSystem = new QuestSystem();
+
             Session.StartOrLoad();
+
+            _dayFlowOrchestrator = gameObject.AddComponent<DayFlowOrchestrator>();
+            _dayFlowOrchestrator.Init(
+                Session,
+                daySystem,
+                InfoSystem,
+                Session.ActionPointSystem,
+                QuestSystem);
         }
 
         [ContextMenu("Force New Game")]
