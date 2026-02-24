@@ -104,7 +104,7 @@ namespace Project.Systems.Game
             unchecked
             {
                 var value = seed;
-                value ^= day + 0x9e3779b9 + (value << 6) + (value >> 2);
+                value ^= day + (int)0x9e3779b9 + (value << 6) + (value >> 2);
                 value ^= value << 13;
                 value ^= value >> 17;
                 value ^= value << 5;
