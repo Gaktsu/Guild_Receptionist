@@ -16,9 +16,9 @@ namespace Project.Domain.Save
     public class WorldStateData
     {
         public int Reputation;
-        public int Stability;
-        public int Budget;
-        public int Influence;
-        public int Casualties;
+        public int Gold;
+        public int Population;
+        public int ThreatLevel;
+        public int Prosperity;
     }
 }
