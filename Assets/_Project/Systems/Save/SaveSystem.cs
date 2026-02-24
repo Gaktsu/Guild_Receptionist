@@ -32,7 +32,7 @@ namespace Project.Systems.Save
         }
 
         /// <summary>
-        /// Loads save data from persistent storage. Returns null when no save file exists.
+        /// Loads save data from persistent storage. Returns null when no valid save file exists.
         /// </summary>
         public SaveGameData Load()
         {
@@ -48,7 +48,14 @@ namespace Project.Systems.Save
                 return null;
             }
 
-            return JsonUtility.FromJson<SaveGameData>(json);
+            try
+            {
+                return JsonUtility.FromJson<SaveGameData>(json);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
