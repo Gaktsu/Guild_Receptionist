@@ -7,6 +7,7 @@ namespace Project.Core.Random
     /// </summary>
     public sealed class SeededRandomService : IRandomService
     {
+        private const float MaxExclusiveFloat = 0.99999994f; // Largest float less than 1.0f.
         private readonly System.Random _random;
 
         /// <summary>
@@ -33,7 +34,8 @@ namespace Project.Core.Random
         /// <inheritdoc />
         public float Value()
         {
-            return (float)_random.NextDouble();
+            var value = (float)_random.NextDouble();
+            return value < 1.0f ? value : MaxExclusiveFloat;
         }
     }
 }
