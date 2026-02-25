@@ -139,8 +139,6 @@ namespace Project.Systems.Day
             {
                 _session.ApplyWorldDelta(results[i].Delta);
             }
-
-            _session.Save();
         }
 
         private int GetInfoCredibility(string infoId)
