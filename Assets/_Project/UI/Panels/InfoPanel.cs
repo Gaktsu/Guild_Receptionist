@@ -5,14 +5,14 @@ using Project.Systems.Info;
 using Project.Systems.Player;
 using Project.UI.Widgets;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 namespace Project.UI.Panels
 {
     public class InfoPanel : MonoBehaviour
     {
         [SerializeField] private GameObject _panelRoot;
-        [SerializeField] private Text _apText;
+        [SerializeField] private TextMeshProUGUI _apText;
         [SerializeField] private Transform _contentRoot;
         [SerializeField] private InfoItemWidget _itemWidgetPrefab;
 

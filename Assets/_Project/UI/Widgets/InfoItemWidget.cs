@@ -1,15 +1,16 @@
 using Project.Domain.Info;
 using Project.Systems.Info;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 namespace Project.UI.Widgets
 {
     public class InfoItemWidget : MonoBehaviour
     {
-        [SerializeField] private Text _titleText;
-        [SerializeField] private Text _regionText;
-        [SerializeField] private Text _credibilityText;
+        [SerializeField] private TextMeshProUGUI _titleText;
+        [SerializeField] private TextMeshProUGUI _regionText;
+        [SerializeField] private TextMeshProUGUI _credibilityText;
         [SerializeField] private Button _investigateButton;
         [SerializeField] private Button _archiveButton;
         [SerializeField] private Button _discardButton;
