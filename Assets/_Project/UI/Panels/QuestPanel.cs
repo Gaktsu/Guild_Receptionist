@@ -178,14 +178,6 @@ namespace Project.UI.Panels
                 return;
             }
 
-            _infoToggleGroup = _infoToggleListRoot.GetComponent<ToggleGroup>();
-            if (_infoToggleGroup == null)
-            {
-                _infoToggleGroup = _infoToggleListRoot.gameObject.AddComponent<ToggleGroup>();
-            }
-
-            _infoToggleGroup.allowSwitchOff = true;
-
             IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
             for (var i = 0; i < infos.Count; i++)
             {
