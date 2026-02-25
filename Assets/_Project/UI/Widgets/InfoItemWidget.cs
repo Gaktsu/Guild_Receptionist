@@ -62,6 +62,7 @@ namespace Project.UI.Widgets
             if (_infoSystem.TryInvestigate(_info.Id))
             {
                 _onChanged?.Invoke();
+                return;
             }
 
             Refresh();
@@ -77,6 +78,7 @@ namespace Project.UI.Widgets
             if (_infoSystem.TryArchive(_info.Id))
             {
                 _onChanged?.Invoke();
+                return;
             }
 
             Refresh();
@@ -92,6 +94,7 @@ namespace Project.UI.Widgets
             if (_infoSystem.TryDiscard(_info.Id))
             {
                 _onChanged?.Invoke();
+                return;
             }
 
             Refresh();
