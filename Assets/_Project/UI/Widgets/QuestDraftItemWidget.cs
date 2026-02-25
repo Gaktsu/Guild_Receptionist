@@ -1,5 +1,6 @@
 using System;
 using Project.Domain.Quest;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ namespace Project.UI.Widgets
 {
     public class QuestDraftItemWidget : MonoBehaviour
     {
-        [SerializeField] private Text _draftText;
+        [SerializeField] private TextMeshProUGUI _draftText;
         [SerializeField] private Button _submitButton;
 
         private QuestDraft _draft;

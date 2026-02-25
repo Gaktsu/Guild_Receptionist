@@ -7,6 +7,7 @@ using Project.Systems.Game;
 using Project.Systems.Info;
 using Project.Systems.Quest;
 using Project.UI.Widgets;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,10 +21,10 @@ namespace Project.UI.Panels
         [SerializeField] private GameObject _draftSectionRoot;
         [SerializeField] private Transform _infoToggleListRoot;
         [SerializeField] private Toggle _infoTogglePrefab;
-        [SerializeField] private Dropdown _typeDropdown;
-        [SerializeField] private Dropdown _riskDropdown;
-        [SerializeField] private InputField _rewardInput;
-        [SerializeField] private Dropdown _deadlineDropdown;
+        [SerializeField] private TMP_Dropdown _typeDropdown;
+        [SerializeField] private TMP_Dropdown _riskDropdown;
+        [SerializeField] private TMP_InputField _rewardInput;
+        [SerializeField] private TMP_Dropdown _deadlineDropdown;
         [SerializeField] private Button _createDraftButton;
 
         [Header("Submission Phase")]
@@ -32,8 +33,8 @@ namespace Project.UI.Panels
         [Header("Shared")]
         [SerializeField] private Transform _draftListRoot;
         [SerializeField] private QuestDraftItemWidget _draftItemPrefab;
-        [SerializeField] private Text _submittedText;
-        [SerializeField] private Text _messageText;
+        [SerializeField] private TextMeshProUGUI _submittedText;
+        [SerializeField] private TextMeshProUGUI _messageText;
 
         private readonly List<Toggle> _spawnedInfoToggles = new List<Toggle>();
         private readonly List<QuestDraftItemWidget> _spawnedDraftItems = new List<QuestDraftItemWidget>();
@@ -176,7 +177,7 @@ namespace Project.UI.Panels
             for (var i = 0; i < infos.Count; i++)
             {
                 var toggle = Instantiate(_infoTogglePrefab, _infoToggleListRoot);
-                var label = toggle.GetComponentInChildren<Text>();
+                var label = toggle.GetComponentInChildren<TextMeshProUGUI>();
                 if (label != null)
                 {
                     label.text = $"{infos[i].Id} | {infos[i].Title} | Cred {infos[i].Credibility}";
