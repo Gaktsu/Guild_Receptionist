@@ -153,6 +153,7 @@ namespace Project.UI.Panels
             BuildInfoToggles();
             BuildDraftList();
             RefreshSubmittedText();
+            RefreshCreateDraftButtonState();
             SetMessage(string.Empty);
         }
 
@@ -184,8 +185,12 @@ namespace Project.UI.Panels
                 }
 
                 toggle.isOn = false;
+                toggle.onValueChanged.RemoveAllListeners();
+                toggle.onValueChanged.AddListener(_ => RefreshCreateDraftButtonState());
                 _spawnedInfoToggles.Add(toggle);
             }
+
+            RefreshCreateDraftButtonState();
         }
 
         private void BuildDraftList()
@@ -259,15 +264,12 @@ namespace Project.UI.Panels
                 return;
             }
 
-            var selectedInfoIds = new List<string>();
-            IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
-
-            for (var i = 0; i < _spawnedInfoToggles.Count && i < infos.Count; i++)
+            var selectedInfoIds = CollectSelectedInfoIds();
+            if (selectedInfoIds.Count == 0)
             {
-                if (_spawnedInfoToggles[i] != null && _spawnedInfoToggles[i].isOn)
-                {
-                    selectedInfoIds.Add(infos[i].Id);
-                }
+                SetMessage("Select at least one info before creating a draft.");
+                RefreshCreateDraftButtonState();
+                return;
             }
 
             var reward = ParsePositiveInt(_rewardInput != null ? _rewardInput.text : string.Empty, GetRiskFromDropdown() * 100);
@@ -279,7 +281,44 @@ namespace Project.UI.Panels
                 GetDeadlineFromDropdown());
 
             SetMessage($"Draft created: {draft.Id}");
+            RefreshCreateDraftButtonState();
             BuildDraftList();
+        }
+
+        private List<string> CollectSelectedInfoIds()
+        {
+            var selectedInfoIds = new List<string>();
+            if (_infoSystem == null)
+            {
+                return selectedInfoIds;
+            }
+
+            var uniqueIds = new HashSet<string>();
+            IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
+            for (var i = 0; i < _spawnedInfoToggles.Count && i < infos.Count; i++)
+            {
+                if (_spawnedInfoToggles[i] == null || !_spawnedInfoToggles[i].isOn)
+                {
+                    continue;
+                }
+
+                if (uniqueIds.Add(infos[i].Id))
+                {
+                    selectedInfoIds.Add(infos[i].Id);
+                }
+            }
+
+            return selectedInfoIds;
+        }
+
+        private void RefreshCreateDraftButtonState()
+        {
+            if (_createDraftButton == null)
+            {
+                return;
+            }
+
+            _createDraftButton.interactable = CollectSelectedInfoIds().Count > 0;
         }
 
         private void HandleSubmitDraft(string draftId)
