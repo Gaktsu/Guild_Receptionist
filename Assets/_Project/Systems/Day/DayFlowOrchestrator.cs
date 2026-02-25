@@ -6,6 +6,10 @@ using Project.Systems.Game;
 using Project.Systems.Info;
 using Project.Systems.Player;
 using Project.Systems.Quest;
+using Project.Systems.Save;
+using Project.Systems.Event;
+using Project.Domain.Save;
+using Project.Domain.Event;
 using UnityEngine;
 
 namespace Project.Systems.Day
@@ -19,6 +23,8 @@ namespace Project.Systems.Day
         private InfoSystem _infoSystem;
         private ActionPointSystem _apSystem;
         private QuestSystem _questSystem;
+        private EventSystem _eventSystem;
+        private readonly SaveSystem _eventSaveSystem = new SaveSystem();
 
         public IReadOnlyList<QuestResult> LastResults => _lastResults;
 
@@ -34,6 +40,10 @@ namespace Project.Systems.Day
             _infoSystem = infoSystem ?? throw new ArgumentNullException(nameof(infoSystem));
             _apSystem = apSystem ?? throw new ArgumentNullException(nameof(apSystem));
             _questSystem = questSystem ?? throw new ArgumentNullException(nameof(questSystem));
+
+            _eventSystem = new EventSystem();
+            var loadedSave = _eventSaveSystem.Load();
+            _eventSystem.LoadOrInit(loadedSave?.PlagueEvent);
 
             _daySystem.OnStateChanged -= HandleStateChanged;
             _daySystem.OnStateChanged += HandleStateChanged;
@@ -100,6 +110,9 @@ namespace Project.Systems.Day
             switch (state)
             {
                 case DayState.DayStart:
+                    _eventSystem.OnDayStart();
+                    _eventSystem.TryTriggerOrAdvance(_session.WorldState);
+                    _session.ApplyWorldDelta(_eventSystem.GetDailyDelta());
                     _apSystem.StartDay();
                     _infoSystem.StartDay(_session.CreateDayRng(), _session.CurrentDay);
                     Debug.Log($"[DayFlow] DayStart 완료 — Day {_session.CurrentDay}, Info {_infoSystem.TodayInfos.Count}개 생성, AP={_apSystem.CurrentAP}/{_apSystem.MaxAP}");
@@ -122,11 +135,14 @@ namespace Project.Systems.Day
                 case DayState.ResolutionPhase:
                     Debug.Log("[DayFlow] ResolutionPhase — 퀘스트 판정 시작...");
                     ResolvePhase();
+                    _eventSystem.RegisterQuestResults(LastResults);
+                    _eventSystem.TryTriggerOrAdvance(_session.WorldState);
                     Debug.Log($"[DayFlow] ResolutionPhase 완료 — WorldState: 평판={_session.WorldState.Reputation}, 안정={_session.WorldState.Stability}, 예산={_session.WorldState.Budget}");
                     break;
                 case DayState.DayEnd:
                     var prevDay = _session.CurrentDay;
                     _session.NextDay();
+                    PersistEventToSave();
                     Debug.Log($"[DayFlow] DayEnd — Day {prevDay} → Day {_session.CurrentDay} 으로 전환, 저장 완료");
                     break;
             }
@@ -148,6 +164,27 @@ namespace Project.Systems.Day
             }
         }
 
+
+        private void PersistEventToSave()
+        {
+            if (_eventSystem == null || _eventSystem.Current == null)
+            {
+                return;
+            }
+
+            var saveData = _eventSaveSystem.Load() ?? new SaveGameData();
+            var source = _eventSystem.Current;
+            saveData.PlagueEvent = new ActiveEventData
+            {
+                EventId = source.EventId,
+                Phase = source.Phase,
+                DaysInPhase = source.DaysInPhase,
+                TotalFailuresWindow = source.TotalFailuresWindow,
+                IsFinished = source.IsFinished
+            };
+
+            _eventSaveSystem.Save(saveData);
+        }
         private int GetInfoCredibility(string infoId)
         {
             IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;

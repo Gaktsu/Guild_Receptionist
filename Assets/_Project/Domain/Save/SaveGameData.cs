@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Domain.Event;
 
 namespace Project.Domain.Save
 {
@@ -11,6 +12,7 @@ namespace Project.Domain.Save
         public int CurrentAP;
         public WorldStateData WorldState = new WorldStateData();
         public List<string> ArchivedInfoIds = new List<string>();
+        public ActiveEventData PlagueEvent = new ActiveEventData();
     }
 
     [Serializable]
