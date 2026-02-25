@@ -8,6 +8,7 @@ namespace Project.Domain.Save
     {
         public int CurrentDay;
         public int Seed;
+        public int CurrentAP;
         public WorldStateData WorldState = new WorldStateData();
         public List<string> ArchivedInfoIds = new List<string>();
     }
