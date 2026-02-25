@@ -37,7 +37,10 @@ namespace Project.UI.Panels
         [SerializeField] private TextMeshProUGUI _messageText;
 
         private readonly List<Toggle> _spawnedInfoToggles = new List<Toggle>();
+        private readonly List<InfoData> _selectableInfos = new List<InfoData>();
         private readonly List<QuestDraftItemWidget> _spawnedDraftItems = new List<QuestDraftItemWidget>();
+
+        private ToggleGroup _infoToggleGroup;
 
         private QuestSystem _questSystem;
         private InfoSystem _infoSystem;
@@ -168,22 +171,40 @@ namespace Project.UI.Panels
             }
 
             _spawnedInfoToggles.Clear();
+            _selectableInfos.Clear();
 
             if (_infoToggleListRoot == null || _infoTogglePrefab == null || _infoSystem == null)
             {
                 return;
             }
 
+            _infoToggleGroup = _infoToggleListRoot.GetComponent<ToggleGroup>();
+            if (_infoToggleGroup == null)
+            {
+                _infoToggleGroup = _infoToggleListRoot.gameObject.AddComponent<ToggleGroup>();
+            }
+
+            _infoToggleGroup.allowSwitchOff = true;
+
             IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
             for (var i = 0; i < infos.Count; i++)
             {
+                if (infos[i].IsDiscarded)
+                {
+                    continue;
+                }
+
+                _selectableInfos.Add(infos[i]);
+
                 var toggle = Instantiate(_infoTogglePrefab, _infoToggleListRoot);
                 var label = toggle.GetComponentInChildren<TextMeshProUGUI>();
                 if (label != null)
                 {
-                    label.text = $"{infos[i].Id} | {infos[i].Title} | Cred {infos[i].Credibility}";
+                    var archivedTag = infos[i].IsArchived ? " [Archived]" : string.Empty;
+                    label.text = $"{infos[i].Id} | {infos[i].Title}{archivedTag} | Cred {infos[i].Credibility}";
                 }
 
+                toggle.group = _infoToggleGroup;
                 toggle.isOn = false;
                 toggle.onValueChanged.RemoveAllListeners();
                 toggle.onValueChanged.AddListener(_ => RefreshCreateDraftButtonState());
@@ -294,17 +315,16 @@ namespace Project.UI.Panels
             }
 
             var uniqueIds = new HashSet<string>();
-            IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
-            for (var i = 0; i < _spawnedInfoToggles.Count && i < infos.Count; i++)
+            for (var i = 0; i < _spawnedInfoToggles.Count && i < _selectableInfos.Count; i++)
             {
                 if (_spawnedInfoToggles[i] == null || !_spawnedInfoToggles[i].isOn)
                 {
                     continue;
                 }
 
-                if (uniqueIds.Add(infos[i].Id))
+                if (uniqueIds.Add(_selectableInfos[i].Id))
                 {
-                    selectedInfoIds.Add(infos[i].Id);
+                    selectedInfoIds.Add(_selectableInfos[i].Id);
                 }
             }
 
