@@ -17,6 +17,7 @@ namespace Project.Systems.Game
         public QuestSystem QuestSystem { get; private set; }
 
         [SerializeField] private InfoPanel _infoPanel;
+        [SerializeField] private QuestPanel _questPanel;
 
         private DayFlowOrchestrator _dayFlowOrchestrator;
 
@@ -53,6 +54,12 @@ namespace Project.Systems.Game
             {
                 _infoPanel.Init(InfoSystem, Session.ActionPointSystem, daySystem);
             }
+
+            if (_questPanel != null)
+            {
+                _questPanel.Init(QuestSystem, InfoSystem, daySystem, Session);
+            }
+
             Debug.Log($"[GameBootstrapper] 초기화 완료 — Day {Session.CurrentDay}, AP {Session.ActionPointSystem.CurrentAP}/{Session.ActionPointSystem.MaxAP}, State: {daySystem.CurrentState}");
         }
 
