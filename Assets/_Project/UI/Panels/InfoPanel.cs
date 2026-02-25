@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using Project.Core;
 using Project.Domain.Info;
 using Project.Systems.Day;
 using Project.Systems.Info;
 using Project.Systems.Player;
 using Project.UI.Widgets;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 namespace Project.UI.Panels
@@ -15,8 +17,8 @@ namespace Project.UI.Panels
         [SerializeField] private TextMeshProUGUI _apText;
         [SerializeField] private Transform _contentRoot;
         [SerializeField] private InfoItemWidget _itemWidgetPrefab;
+        [SerializeField] private Button _nextPhaseButton;
 
-        private readonly List<InfoItemWidget> _spawnedWidgets = new List<InfoItemWidget>();
 
         private InfoSystem _infoSystem;
         private ActionPointSystem _apSystem;
@@ -38,6 +40,12 @@ namespace Project.UI.Panels
                 _daySystem.OnStateChanged += HandleStateChanged;
                 HandleStateChanged(_daySystem.CurrentState);
             }
+
+            if (_nextPhaseButton != null)
+            {
+                _nextPhaseButton.onClick.RemoveAllListeners();
+                _nextPhaseButton.onClick.AddListener(HandleNextPhaseClicked);
+            }
         }
 
         private void OnDestroy()
@@ -45,6 +53,11 @@ namespace Project.UI.Panels
             if (_daySystem != null)
             {
                 _daySystem.OnStateChanged -= HandleStateChanged;
+            }
+
+            if (_nextPhaseButton != null)
+            {
+                _nextPhaseButton.onClick.RemoveListener(HandleNextPhaseClicked);
             }
         }
 
@@ -55,6 +68,7 @@ namespace Project.UI.Panels
 
             if (!isInfoPhase)
             {
+                ClearSpawnedWidgets();
                 return;
             }
 
@@ -74,22 +88,28 @@ namespace Project.UI.Panels
 
         private void RebuildList(IReadOnlyList<InfoData> infos)
         {
-            for (var i = 0; i < _spawnedWidgets.Count; i++)
-            {
-                if (_spawnedWidgets[i] != null)
-                {
-                    Destroy(_spawnedWidgets[i].gameObject);
-                }
-            }
-
-            _spawnedWidgets.Clear();
+            UIHelper.DestroyAllChildren(_contentRoot);
 
             for (var i = 0; i < infos.Count; i++)
             {
                 var widget = Instantiate(_itemWidgetPrefab, _contentRoot);
                 widget.Init(infos[i], _infoSystem, RefreshAll);
-                _spawnedWidgets.Add(widget);
             }
+        }
+
+        private void ClearSpawnedWidgets()
+        {
+            UIHelper.DestroyAllChildren(_contentRoot);
+        }
+
+        private void HandleNextPhaseClicked()
+        {
+            if (_daySystem == null)
+            {
+                return;
+            }
+
+            _daySystem.TrySetState(DayState.QuestDraftPhase);
         }
     }
 }

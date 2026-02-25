@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Core;
 using Project.Domain.Info;
 using Project.Domain.Quest;
 using Project.Systems.Day;
@@ -35,10 +36,11 @@ namespace Project.UI.Panels
         [SerializeField] private QuestDraftItemWidget _draftItemPrefab;
         [SerializeField] private TextMeshProUGUI _submittedText;
         [SerializeField] private TextMeshProUGUI _messageText;
+        [SerializeField] private Button _toSubmissionButton;
+        [SerializeField] private Button _toResolutionButton;
 
         private readonly List<Toggle> _spawnedInfoToggles = new List<Toggle>();
         private readonly List<InfoData> _selectableInfos = new List<InfoData>();
-        private readonly List<QuestDraftItemWidget> _spawnedDraftItems = new List<QuestDraftItemWidget>();
 
         private ToggleGroup _infoToggleGroup;
 
@@ -91,6 +93,18 @@ namespace Project.UI.Panels
                 _riskDropdown.onValueChanged.RemoveAllListeners();
                 _riskDropdown.onValueChanged.AddListener(_ => UpdateRewardDefault());
             }
+
+            if (_toSubmissionButton != null)
+            {
+                _toSubmissionButton.onClick.RemoveAllListeners();
+                _toSubmissionButton.onClick.AddListener(HandleToSubmissionClicked);
+            }
+
+            if (_toResolutionButton != null)
+            {
+                _toResolutionButton.onClick.RemoveAllListeners();
+                _toResolutionButton.onClick.AddListener(HandleToResolutionClicked);
+            }
         }
 
         private void SetupDropdowns()
@@ -133,6 +147,7 @@ namespace Project.UI.Panels
 
             if (!isQuestPhase)
             {
+                ClearSpawnedItems();
                 return;
             }
 
@@ -157,19 +172,13 @@ namespace Project.UI.Panels
             BuildDraftList();
             RefreshSubmittedText();
             RefreshCreateDraftButtonState();
+            RefreshPhaseButtons();
             SetMessage(string.Empty);
         }
 
         private void BuildInfoToggles()
         {
-            for (var i = 0; i < _spawnedInfoToggles.Count; i++)
-            {
-                if (_spawnedInfoToggles[i] != null)
-                {
-                    Destroy(_spawnedInfoToggles[i].gameObject);
-                }
-            }
-
+            UIHelper.DestroyAllChildren(_infoToggleListRoot);
             _spawnedInfoToggles.Clear();
             _selectableInfos.Clear();
 
@@ -208,15 +217,7 @@ namespace Project.UI.Panels
 
         private void BuildDraftList()
         {
-            for (var i = 0; i < _spawnedDraftItems.Count; i++)
-            {
-                if (_spawnedDraftItems[i] != null)
-                {
-                    Destroy(_spawnedDraftItems[i].gameObject);
-                }
-            }
-
-            _spawnedDraftItems.Clear();
+            UIHelper.DestroyAllChildren(_draftListRoot);
 
             if (_questSystem == null || _draftListRoot == null || _draftItemPrefab == null)
             {
@@ -229,7 +230,6 @@ namespace Project.UI.Panels
             {
                 var item = Instantiate(_draftItemPrefab, _draftListRoot);
                 item.Init(drafts[i], canSubmit, HandleSubmitDraft);
-                _spawnedDraftItems.Add(item);
             }
         }
 
@@ -402,6 +402,51 @@ namespace Project.UI.Panels
             {
                 _messageText.text = message;
             }
+        }
+
+        private void ClearSpawnedItems()
+        {
+            UIHelper.DestroyAllChildren(_infoToggleListRoot);
+            _spawnedInfoToggles.Clear();
+            _selectableInfos.Clear();
+
+            UIHelper.DestroyAllChildren(_draftListRoot);
+        }
+
+        private void RefreshPhaseButtons()
+        {
+            var isDraft = _daySystem != null && _daySystem.CurrentState == DayState.QuestDraftPhase;
+            var isSubmission = _daySystem != null && _daySystem.CurrentState == DayState.SubmissionPhase;
+
+            if (_toSubmissionButton != null)
+            {
+                _toSubmissionButton.gameObject.SetActive(isDraft);
+            }
+
+            if (_toResolutionButton != null)
+            {
+                _toResolutionButton.gameObject.SetActive(isSubmission);
+            }
+        }
+
+        private void HandleToSubmissionClicked()
+        {
+            if (_daySystem == null)
+            {
+                return;
+            }
+
+            _daySystem.TrySetState(DayState.SubmissionPhase);
+        }
+
+        private void HandleToResolutionClicked()
+        {
+            if (_daySystem == null)
+            {
+                return;
+            }
+
+            _daySystem.TrySetState(DayState.ResolutionPhase);
         }
     }
 }

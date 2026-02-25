@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Project.Core;
 using Project.Domain.Quest;
 using Project.Systems.Day;
 using Project.Systems.Game;
@@ -13,13 +14,12 @@ namespace Project.UI.Panels
     {
         [SerializeField] private GameObject _panelRoot;
         [SerializeField] private GameObject _resolutionSectionRoot;
-        [SerializeField] private GameObject _dayEndSectionRoot;
         [SerializeField] private Transform _resultListRoot;
         [SerializeField] private ResultItemWidget _itemPrefab;
         [SerializeField] private TextMeshProUGUI _worldStateText;
         [SerializeField] private Button _nextDayButton;
+        [SerializeField] private Button _toDayEndButton;
 
-        private readonly List<ResultItemWidget> _spawnedItems = new List<ResultItemWidget>();
 
         private DaySystem _daySystem;
         private GameSession _session;
@@ -45,6 +45,12 @@ namespace Project.UI.Panels
             {
                 _nextDayButton.onClick.RemoveAllListeners();
                 _nextDayButton.onClick.AddListener(HandleNextDayClicked);
+            }
+
+            if (_toDayEndButton != null)
+            {
+                _toDayEndButton.onClick.RemoveAllListeners();
+                _toDayEndButton.onClick.AddListener(HandleToDayEndClicked);
             }
 
             HandleStateChanged(_daySystem != null ? _daySystem.CurrentState : DayState.DayStart);
@@ -83,6 +89,11 @@ namespace Project.UI.Panels
             {
                 _nextDayButton.onClick.RemoveListener(HandleNextDayClicked);
             }
+
+            if (_toDayEndButton != null)
+            {
+                _toDayEndButton.onClick.RemoveListener(HandleToDayEndClicked);
+            }
         }
 
         private void HandleStateChanged(DayState state)
@@ -98,6 +109,7 @@ namespace Project.UI.Panels
 
             if (!isVisible)
             {
+                UIHelper.DestroyAllChildren(_resultListRoot);
                 return;
             }
 
@@ -106,9 +118,14 @@ namespace Project.UI.Panels
                 _resolutionSectionRoot.SetActive(isResolution);
             }
 
-            if (_dayEndSectionRoot != null)
+            if (_toDayEndButton != null)
             {
-                _dayEndSectionRoot.SetActive(isDayEnd);
+                _toDayEndButton.gameObject.SetActive(isResolution);
+            }
+
+            if (_nextDayButton != null)
+            {
+                _nextDayButton.gameObject.SetActive(isDayEnd);
             }
 
             RefreshResults();
@@ -122,15 +139,7 @@ namespace Project.UI.Panels
 
         private void RebuildList(IReadOnlyList<QuestResult> results)
         {
-            for (var i = 0; i < _spawnedItems.Count; i++)
-            {
-                if (_spawnedItems[i] != null)
-                {
-                    Destroy(_spawnedItems[i].gameObject);
-                }
-            }
-
-            _spawnedItems.Clear();
+            UIHelper.DestroyAllChildren(_resultListRoot);
 
             if (results == null || _itemPrefab == null || _resultListRoot == null)
             {
@@ -141,7 +150,6 @@ namespace Project.UI.Panels
             {
                 var item = Instantiate(_itemPrefab, _resultListRoot);
                 item.Init(results[i]);
-                _spawnedItems.Add(item);
             }
         }
 
@@ -165,6 +173,16 @@ namespace Project.UI.Panels
             }
 
             _daySystem.TrySetState(DayState.DayStart);
+        }
+
+        private void HandleToDayEndClicked()
+        {
+            if (_daySystem == null)
+            {
+                return;
+            }
+
+            _daySystem.TrySetState(DayState.DayEnd);
         }
     }
 }

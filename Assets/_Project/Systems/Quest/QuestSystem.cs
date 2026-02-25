@@ -18,6 +18,11 @@ namespace Project.Systems.Quest
         public IReadOnlyList<QuestIssued> SubmittedToday => _submittedToday;
         public int MaxSubmissionsPerDay => 4;
 
+        public void ClearDrafts()
+        {
+            _drafts.Clear();
+        }
+
         public QuestDraft CreateDraft(
             QuestTemplateType type,
             List<string> sourceInfoIds,

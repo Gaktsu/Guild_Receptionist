@@ -1,5 +1,6 @@
 using System;
 using Project.Core.Random;
+using Project.Domain.Event;
 using Project.Domain.Quest;
 using Project.Domain.Save;
 using Project.Systems.Day;
@@ -17,6 +18,7 @@ namespace Project.Systems.Game
         public int GameSeed { get; private set; }
         public WorldStateData WorldState { get; private set; }
         public ActionPointSystem ActionPointSystem { get; }
+        public ActiveEventData EventData { get; set; }
 
         public DaySystem DaySystem => _daySystem;
 
@@ -62,8 +64,6 @@ namespace Project.Systems.Game
         public void NextDay()
         {
             CurrentDay++;
-            ActionPointSystem.StartDay();
-            _daySystem.ForceSetState(DayState.DayStart);
             Save();
         }
 
@@ -77,7 +77,8 @@ namespace Project.Systems.Game
                 CurrentDay = CurrentDay,
                 Seed = GameSeed,
                 CurrentAP = ActionPointSystem.CurrentAP,
-                WorldState = CloneWorldState(WorldState)
+                WorldState = CloneWorldState(WorldState),
+                PlagueEvent = EventData ?? new ActiveEventData()
             };
 
             _saveSystem.Save(data);
@@ -116,6 +117,7 @@ namespace Project.Systems.Game
             CurrentDay = saveData.CurrentDay > 0 ? saveData.CurrentDay : 1;
             WorldState = saveData.WorldState != null ? CloneWorldState(saveData.WorldState) : CreateDefaultWorldState();
             ActionPointSystem.SetCurrent(saveData.CurrentAP);
+            EventData = saveData.PlagueEvent;
             _daySystem.ForceSetState(DayState.DayStart);
         }
 

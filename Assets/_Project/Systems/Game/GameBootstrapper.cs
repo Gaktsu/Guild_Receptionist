@@ -42,14 +42,8 @@ namespace Project.Systems.Game
 
             Session.StartOrLoad();
 
-            _dayFlowOrchestrator = gameObject.AddComponent<DayFlowOrchestrator>();
-            _dayFlowOrchestrator.Init(
-                Session,
-                daySystem,
-                InfoSystem,
-                Session.ActionPointSystem,
-                QuestSystem);
-
+            // Panels must subscribe BEFORE Orchestrator.Init() triggers DayStart→InfoPhase,
+            // so they receive the state-change events.
             if (_infoPanel != null)
             {
                 _infoPanel.Init(InfoSystem, Session.ActionPointSystem, daySystem);
@@ -59,6 +53,14 @@ namespace Project.Systems.Game
             {
                 _questPanel.Init(QuestSystem, InfoSystem, daySystem, Session);
             }
+
+            _dayFlowOrchestrator = gameObject.AddComponent<DayFlowOrchestrator>();
+            _dayFlowOrchestrator.Init(
+                Session,
+                daySystem,
+                InfoSystem,
+                Session.ActionPointSystem,
+                QuestSystem);
 
             Debug.Log($"[GameBootstrapper] 초기화 완료 — Day {Session.CurrentDay}, AP {Session.ActionPointSystem.CurrentAP}/{Session.ActionPointSystem.MaxAP}, State: {daySystem.CurrentState}");
         }
