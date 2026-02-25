@@ -12,11 +12,15 @@ namespace Project.Systems.Day
 {
     public class DayFlowOrchestrator : MonoBehaviour
     {
+        private readonly List<QuestResult> _lastResults = new List<QuestResult>();
+
         private GameSession _session;
         private DaySystem _daySystem;
         private InfoSystem _infoSystem;
         private ActionPointSystem _apSystem;
         private QuestSystem _questSystem;
+
+        public IReadOnlyList<QuestResult> LastResults => _lastResults;
 
         public void Init(
             GameSession session,
@@ -134,6 +138,9 @@ namespace Project.Systems.Day
                 _session.CurrentDay,
                 _session.CreateDayRng(),
                 GetInfoCredibility);
+
+            _lastResults.Clear();
+            _lastResults.AddRange(results);
 
             for (var i = 0; i < results.Count; i++)
             {
