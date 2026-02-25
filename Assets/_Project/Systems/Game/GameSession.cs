@@ -13,6 +13,7 @@ namespace Project.Systems.Game
     {
         private readonly DaySystem _daySystem;
         private readonly SaveSystem _saveSystem;
+        private bool _skipNextDayStartApReset;
 
         public int CurrentDay { get; private set; }
         public int GameSeed { get; private set; }
@@ -21,6 +22,21 @@ namespace Project.Systems.Game
         public ActiveEventData EventData { get; set; }
 
         public DaySystem DaySystem => _daySystem;
+
+        /// <summary>
+        /// Consumes the one-time flag that skips AP reset on the next DayStart.
+        /// Used when bootstrapping from a loaded save so restored AP is preserved.
+        /// </summary>
+        public bool ConsumeSkipNextDayStartApReset()
+        {
+            if (!_skipNextDayStartApReset)
+            {
+                return false;
+            }
+
+            _skipNextDayStartApReset = false;
+            return true;
+        }
 
         public GameSession(DaySystem daySystem, SaveSystem saveSystem)
         {
@@ -50,6 +66,7 @@ namespace Project.Systems.Game
         /// </summary>
         public void NewGame(int? seedOverride = null)
         {
+            _skipNextDayStartApReset = false;
             GameSeed = seedOverride ?? GenerateTimeSeed();
             CurrentDay = 1;
             WorldState = CreateDefaultWorldState();
@@ -113,6 +130,7 @@ namespace Project.Systems.Game
 
         private void LoadGame(SaveGameData saveData)
         {
+            _skipNextDayStartApReset = true;
             GameSeed = saveData.Seed;
             CurrentDay = saveData.CurrentDay > 0 ? saveData.CurrentDay : 1;
             WorldState = saveData.WorldState != null ? CloneWorldState(saveData.WorldState) : CreateDefaultWorldState();
