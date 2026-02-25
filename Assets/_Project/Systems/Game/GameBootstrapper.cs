@@ -53,6 +53,7 @@ namespace Project.Systems.Game
             {
                 _infoPanel.Init(InfoSystem, Session.ActionPointSystem, daySystem);
             }
+            Debug.Log($"[GameBootstrapper] 초기화 완료 — Day {Session.CurrentDay}, AP {Session.ActionPointSystem.CurrentAP}/{Session.ActionPointSystem.MaxAP}, State: {daySystem.CurrentState}");
         }
 
         [ContextMenu("Force New Game")]
