@@ -25,17 +25,16 @@ namespace Project.UI.Panels
         private GameSession _session;
         private DayFlowOrchestrator _orchestrator;
 
-        public void Init(DaySystem daySystem, GameSession session, DayFlowOrchestrator orchestrator)
+        public void Init(GameSession session)
         {
             _session = session;
-            _orchestrator = orchestrator;
 
             if (_daySystem != null)
             {
                 _daySystem.OnStateChanged -= HandleStateChanged;
             }
 
-            _daySystem = daySystem;
+            _daySystem = _session != null ? _session.DaySystem : null;
             if (_daySystem != null)
             {
                 _daySystem.OnStateChanged += HandleStateChanged;
@@ -56,26 +55,13 @@ namespace Project.UI.Panels
             HandleStateChanged(_daySystem != null ? _daySystem.CurrentState : DayState.DayStart);
         }
 
-        private void Start()
+        public void SetOrchestrator(DayFlowOrchestrator orchestrator)
         {
+            _orchestrator = orchestrator;
             if (_daySystem != null)
             {
-                return;
+                HandleStateChanged(_daySystem.CurrentState);
             }
-
-            var bootstrapper = GameBootstrapper.Instance;
-            if (bootstrapper == null)
-            {
-                return;
-            }
-
-            var orchestrator = bootstrapper.GetComponent<DayFlowOrchestrator>();
-            if (orchestrator == null)
-            {
-                return;
-            }
-
-            Init(bootstrapper.Session.DaySystem, bootstrapper.Session, orchestrator);
         }
 
         private void OnDestroy()
