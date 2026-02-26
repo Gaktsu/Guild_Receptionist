@@ -60,12 +60,13 @@ namespace Project.Systems.Game
 
         /// <summary>
         /// Advances to the next day and persists the result.
+        /// Does NOT change DayState — the caller (e.g. UI button) is responsible
+        /// for transitioning to DayStart via TrySetState.
         /// </summary>
         public void NextDay()
         {
             CurrentDay++;
             ActionPointSystem.StartDay();
-            _daySystem.SetStateSilently(DayState.DayStart);
             Save();
         }
 

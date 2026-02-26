@@ -24,10 +24,12 @@ namespace Project.Systems.Day
 
         /// <summary>
         /// Forces state change without transition validation. Intended for debug use.
+        /// Always fires OnStateChanged, even if the state is the same.
         /// </summary>
         public void ForceSetState(DayState state)
         {
-            SetStateInternal(state, true);
+            CurrentState = state;
+            OnStateChanged?.Invoke(CurrentState);
         }
 
         /// <summary>

@@ -71,6 +71,7 @@ namespace Project.Systems.Game
             if (_resultPanel != null)
             {
                 _resultPanel.SetOrchestrator(_dayFlowOrchestrator);
+                _dayFlowOrchestrator.SetResultPanel(_resultPanel);
             }
 
             Debug.Log($"[GameBootstrapper] 초기화 완료 — Day {Session.CurrentDay}, AP {Session.ActionPointSystem.CurrentAP}/{Session.ActionPointSystem.MaxAP}, State: {daySystem.CurrentState}");

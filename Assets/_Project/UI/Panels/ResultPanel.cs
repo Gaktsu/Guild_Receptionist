@@ -17,7 +17,11 @@ namespace Project.UI.Panels
         [SerializeField] private Transform _resultListRoot;
         [SerializeField] private ResultItemWidget _itemPrefab;
         [SerializeField] private TextMeshProUGUI _worldStateText;
+
+        /// <summary> DayEnd 상태에서 표시. 클릭 시 DayEnd → DayStart (다음 날로 넘김) </summary>
         [SerializeField] private Button _nextDayButton;
+
+        /// <summary> ResolutionPhase 상태에서 표시. 클릭 시 Resolution → DayEnd </summary>
         [SerializeField] private Button _toDayEndButton;
 
 
@@ -114,6 +118,17 @@ namespace Project.UI.Panels
                 _nextDayButton.gameObject.SetActive(isDayEnd);
             }
 
+            RefreshResults();
+            RefreshWorldState();
+        }
+
+        /// <summary>
+        /// Called externally (e.g. by DayFlowOrchestrator) after resolution results
+        /// are ready, so the list rebuilds with up-to-date data regardless of
+        /// event subscription order.
+        /// </summary>
+        public void Refresh()
+        {
             RefreshResults();
             RefreshWorldState();
         }

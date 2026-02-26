@@ -8,6 +8,7 @@ using Project.Systems.Info;
 using Project.Systems.Player;
 using Project.Systems.Quest;
 using Project.Systems.Event;
+using Project.UI.Panels;
 using UnityEngine;
 
 namespace Project.Systems.Day
@@ -22,6 +23,7 @@ namespace Project.Systems.Day
         private ActionPointSystem _apSystem;
         private QuestSystem _questSystem;
         private EventSystem _eventSystem;
+        private ResultPanel _resultPanel;
         private bool _eventAdvancedThisDay;
 
         public IReadOnlyList<QuestResult> LastResults => _lastResults;
@@ -47,6 +49,11 @@ namespace Project.Systems.Day
             _daySystem.OnStateChanged += HandleStateChanged;
 
             HandleStateChanged(_daySystem.CurrentState);
+        }
+
+        public void SetResultPanel(ResultPanel resultPanel)
+        {
+            _resultPanel = resultPanel;
         }
 
 
@@ -153,6 +160,10 @@ namespace Project.Systems.Day
                     _eventSystem.RegisterQuestResults(LastResults);
                     TryAdvanceEventOncePerDay();
                     Debug.Log($"[DayFlow] ResolutionPhase 완료 — WorldState: 평판={_session.WorldState.Reputation}, 안정={_session.WorldState.Stability}, 예산={_session.WorldState.Budget}");
+                    if (_resultPanel != null)
+                    {
+                        _resultPanel.Refresh();
+                    }
                     break;
                 case DayState.DayEnd:
                     var prevDay = _session.CurrentDay;
