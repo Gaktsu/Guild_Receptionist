@@ -109,10 +109,7 @@ namespace Project.Systems.Day
                     _eventSystem.OnDayStart();
                     _eventSystem.TryTriggerOrAdvance(_session.WorldState);
                     _session.ApplyWorldDelta(_eventSystem.GetDailyDelta());
-                    if (!_session.ConsumeSkipNextDayStartApReset())
-                    {
-                        _apSystem.StartDay();
-                    }
+                    _apSystem.StartDay();
                     _infoSystem.StartDay(_session.CreateDayRng(), _session.CurrentDay);
                     Debug.Log($"[DayFlow] DayStart 완료 — Day {_session.CurrentDay}, Info {_infoSystem.TodayInfos.Count}개 생성, AP={_apSystem.CurrentAP}/{_apSystem.MaxAP}");
                     for (var i = 0; i < _infoSystem.TodayInfos.Count; i++)
