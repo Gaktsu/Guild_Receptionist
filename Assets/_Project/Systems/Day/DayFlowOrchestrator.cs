@@ -22,6 +22,7 @@ namespace Project.Systems.Day
         private ActionPointSystem _apSystem;
         private QuestSystem _questSystem;
         private EventSystem _eventSystem;
+        private bool _eventAdvancedThisDay;
 
         public IReadOnlyList<QuestResult> LastResults => _lastResults;
 
@@ -40,6 +41,7 @@ namespace Project.Systems.Day
 
             _eventSystem = new EventSystem();
             _eventSystem.LoadOrInit(_session.EventData);
+            _eventAdvancedThisDay = false;
 
             _daySystem.OnStateChanged -= HandleStateChanged;
             _daySystem.OnStateChanged += HandleStateChanged;
@@ -107,7 +109,7 @@ namespace Project.Systems.Day
             {
                 case DayState.DayStart:
                     _eventSystem.OnDayStart();
-                    _eventSystem.TryTriggerOrAdvance(_session.WorldState);
+                    TryAdvanceEventOncePerDay();
                     _session.ApplyWorldDelta(_eventSystem.GetDailyDelta());
                     _apSystem.StartDay();
                     _infoSystem.StartDay(_session.CreateDayRng(), _session.CurrentDay);
@@ -133,16 +135,30 @@ namespace Project.Systems.Day
                     ResolvePhase();
                     _questSystem.ClearDrafts();
                     _eventSystem.RegisterQuestResults(LastResults);
-                    _eventSystem.TryTriggerOrAdvance(_session.WorldState);
+                    TryAdvanceEventOncePerDay();
                     Debug.Log($"[DayFlow] ResolutionPhase 완료 — WorldState: 평판={_session.WorldState.Reputation}, 안정={_session.WorldState.Stability}, 예산={_session.WorldState.Budget}");
                     break;
                 case DayState.DayEnd:
                     var prevDay = _session.CurrentDay;
                     SyncEventDataToSession();
                     _session.NextDay();
+                    _eventAdvancedThisDay = false;
                     Debug.Log($"[DayFlow] DayEnd — Day {prevDay} → Day {_session.CurrentDay} 전환, 저장 완료");
                     break;
             }
+        }
+
+
+        private void TryAdvanceEventOncePerDay()
+        {
+            if (_eventAdvancedThisDay)
+            {
+                Debug.Log("[DayFlow] Event advance skipped (already advanced this day).");
+                return;
+            }
+
+            _eventSystem.TryTriggerOrAdvance(_session.WorldState);
+            _eventAdvancedThisDay = true;
         }
 
         private void ResolvePhase()
