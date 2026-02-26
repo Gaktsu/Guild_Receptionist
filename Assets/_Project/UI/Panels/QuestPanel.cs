@@ -190,7 +190,7 @@ namespace Project.UI.Panels
             IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
             for (var i = 0; i < infos.Count; i++)
             {
-                if (infos[i].IsDiscarded)
+                if (infos[i].IsDiscarded || infos[i].IsUsedInDraft)
                 {
                     continue;
                 }
@@ -285,6 +285,27 @@ namespace Project.UI.Panels
                 return;
             }
 
+            if (!CanMarkAllSelectedInfos(selectedInfoIds))
+            {
+                SetMessage("Create failed: one or more infos are unavailable.");
+                BuildInfoToggles();
+                RefreshCreateDraftButtonState();
+                return;
+            }
+
+            for (var i = 0; i < selectedInfoIds.Count; i++)
+            {
+                if (_infoSystem.TryMarkUsed(selectedInfoIds[i]))
+                {
+                    continue;
+                }
+
+                SetMessage("Create failed: one or more infos are unavailable.");
+                BuildInfoToggles();
+                RefreshCreateDraftButtonState();
+                return;
+            }
+
             var reward = ParsePositiveInt(_rewardInput != null ? _rewardInput.text : string.Empty, GetRiskFromDropdown() * 100);
             var draft = _questSystem.CreateDraft(
                 GetTypeFromDropdown(),
@@ -294,8 +315,48 @@ namespace Project.UI.Panels
                 GetDeadlineFromDropdown());
 
             SetMessage($"Draft created: {draft.Id}");
+            BuildInfoToggles();
             RefreshCreateDraftButtonState();
             BuildDraftList();
+        }
+
+        private bool CanMarkAllSelectedInfos(IReadOnlyList<string> selectedInfoIds)
+        {
+            if (_infoSystem == null || selectedInfoIds == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<InfoData> infos = _infoSystem.TodayInfos;
+            for (var i = 0; i < selectedInfoIds.Count; i++)
+            {
+                var id = selectedInfoIds[i];
+                var found = false;
+
+                for (var j = 0; j < infos.Count; j++)
+                {
+                    var info = infos[j];
+                    if (!string.Equals(info.Id, id, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (info.IsArchived || info.IsDiscarded || info.IsUsedInDraft)
+                    {
+                        return false;
+                    }
+
+                    found = true;
+                    break;
+                }
+
+                if (!found)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private List<string> CollectSelectedInfoIds()

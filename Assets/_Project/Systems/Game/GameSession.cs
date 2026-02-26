@@ -64,6 +64,8 @@ namespace Project.Systems.Game
         public void NextDay()
         {
             CurrentDay++;
+            ActionPointSystem.StartDay();
+            _daySystem.SetStateSilently(DayState.DayStart);
             Save();
         }
 
@@ -77,6 +79,7 @@ namespace Project.Systems.Game
                 CurrentDay = CurrentDay,
                 Seed = GameSeed,
                 CurrentAP = ActionPointSystem.CurrentAP,
+                DayState = _daySystem.CurrentState,
                 WorldState = CloneWorldState(WorldState),
                 PlagueEvent = EventData ?? new ActiveEventData()
             };
@@ -118,7 +121,7 @@ namespace Project.Systems.Game
             WorldState = saveData.WorldState != null ? CloneWorldState(saveData.WorldState) : CreateDefaultWorldState();
             ActionPointSystem.SetCurrent(saveData.CurrentAP);
             EventData = saveData.PlagueEvent;
-            _daySystem.ForceSetState(DayState.DayStart);
+            _daySystem.SetStateSilently(saveData.DayState);
         }
 
         private static int GenerateTimeSeed()

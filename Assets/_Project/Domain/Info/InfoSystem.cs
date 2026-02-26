@@ -76,7 +76,8 @@ namespace Project.Systems.Info
                     Credibility = credibility,
                     Summary = $"{region}의 {subject} 제보가 들어왔다. {template}",
                     IsArchived = false,
-                    IsDiscarded = false
+                    IsDiscarded = false,
+                    IsUsedInDraft = false
                 });
             }
         }
@@ -108,6 +109,22 @@ namespace Project.Systems.Info
             }
 
             info.IsDiscarded = true;
+            return true;
+        }
+
+
+        /// <summary>
+        /// Marks an info as used in a draft. Archived/discarded/used infos cannot be marked.
+        /// </summary>
+        public bool TryMarkUsed(string infoId)
+        {
+            var info = FindMutableInfo(infoId);
+            if (info == null)
+            {
+                return false;
+            }
+
+            info.IsUsedInDraft = true;
             return true;
         }
 
@@ -151,7 +168,7 @@ namespace Project.Systems.Info
                     continue;
                 }
 
-                if (info.IsArchived || info.IsDiscarded)
+                if (info.IsArchived || info.IsDiscarded || info.IsUsedInDraft)
                 {
                     return null;
                 }
