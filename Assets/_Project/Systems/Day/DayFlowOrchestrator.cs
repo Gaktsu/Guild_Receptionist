@@ -158,7 +158,9 @@ namespace Project.Systems.Day
                     var prevDay = _session.CurrentDay;
                     _eventAdvancedThisDay = false;
                     SyncEventDataToSession();
+                    _eventAdvancedThisDay = false;
                     _session.NextDay();
+                    _eventAdvancedThisDay = false;
                     Debug.Log($"[DayFlow] DayEnd — Day {prevDay} → Day {_session.CurrentDay} 전환, 저장 완료");
                     break;
             }
