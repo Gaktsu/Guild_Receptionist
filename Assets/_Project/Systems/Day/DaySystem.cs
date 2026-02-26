@@ -18,7 +18,7 @@ namespace Project.Systems.Day
                 return false;
             }
 
-            SetStateInternal(nextState);
+            SetStateInternal(nextState, true);
             return true;
         }
 
@@ -27,7 +27,16 @@ namespace Project.Systems.Day
         /// </summary>
         public void ForceSetState(DayState state)
         {
-            SetStateInternal(state);
+            SetStateInternal(state, true);
+        }
+
+        /// <summary>
+        /// Sets state without invoking <see cref="OnStateChanged"/>.
+        /// Used for persisting state snapshots without running enter side-effects.
+        /// </summary>
+        public void SetStateSilently(DayState state)
+        {
+            SetStateInternal(state, false);
         }
 
         /// <summary>
@@ -52,7 +61,7 @@ namespace Project.Systems.Day
             };
         }
 
-        private void SetStateInternal(DayState nextState)
+        private void SetStateInternal(DayState nextState, bool notify)
         {
             if (CurrentState == nextState)
             {
@@ -60,7 +69,10 @@ namespace Project.Systems.Day
             }
 
             CurrentState = nextState;
-            OnStateChanged?.Invoke(CurrentState);
+            if (notify)
+            {
+                OnStateChanged?.Invoke(CurrentState);
+            }
         }
     }
 }
