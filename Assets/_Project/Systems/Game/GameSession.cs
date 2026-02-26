@@ -64,6 +64,8 @@ namespace Project.Systems.Game
         public void NextDay()
         {
             CurrentDay++;
+            ActionPointSystem.StartDay();
+            _daySystem.ForceSetState(DayState.DayStart);
             Save();
         }
 
