@@ -18,6 +18,7 @@ namespace Project.Systems.Game
 
         [SerializeField] private InfoPanel _infoPanel;
         [SerializeField] private QuestPanel _questPanel;
+        [SerializeField] private ResultPanel _resultPanel;
 
         private DayFlowOrchestrator _dayFlowOrchestrator;
 
@@ -54,6 +55,11 @@ namespace Project.Systems.Game
                 _questPanel.Init(QuestSystem, InfoSystem, daySystem, Session);
             }
 
+            if (_resultPanel != null)
+            {
+                _resultPanel.Init(Session);
+            }
+
             _dayFlowOrchestrator = gameObject.AddComponent<DayFlowOrchestrator>();
             _dayFlowOrchestrator.Init(
                 Session,
@@ -62,13 +68,24 @@ namespace Project.Systems.Game
                 Session.ActionPointSystem,
                 QuestSystem);
 
+            if (_resultPanel != null)
+            {
+                _resultPanel.SetOrchestrator(_dayFlowOrchestrator);
+            }
+
             Debug.Log($"[GameBootstrapper] 초기화 완료 — Day {Session.CurrentDay}, AP {Session.ActionPointSystem.CurrentAP}/{Session.ActionPointSystem.MaxAP}, State: {daySystem.CurrentState}");
         }
 
         [ContextMenu("Force New Game")]
         public void ForceNewGame()
         {
-            Session?.NewGame();
+            if (Session == null)
+            {
+                return;
+            }
+
+            Session.NewGame();
+            _dayFlowOrchestrator?.RestartFlow();
         }
 
         [ContextMenu("Force Save")]
