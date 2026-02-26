@@ -13,5 +13,6 @@ namespace Project.Domain.Info
         public string Summary;
         public bool IsArchived;
         public bool IsDiscarded;
+        public bool IsUsedInDraft;
     }
 }
