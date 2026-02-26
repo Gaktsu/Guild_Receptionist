@@ -156,6 +156,7 @@ namespace Project.Systems.Day
                     break;
                 case DayState.DayEnd:
                     var prevDay = _session.CurrentDay;
+                    _eventAdvancedThisDay = false;
                     SyncEventDataToSession();
                     _eventAdvancedThisDay = false;
                     _session.NextDay();
