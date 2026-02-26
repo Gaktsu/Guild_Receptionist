@@ -49,6 +49,22 @@ namespace Project.Systems.Day
             HandleStateChanged(_daySystem.CurrentState);
         }
 
+
+        public void RestartFlow()
+        {
+            if (_session == null || _daySystem == null || _infoSystem == null || _apSystem == null || _questSystem == null)
+            {
+                return;
+            }
+
+            _lastResults.Clear();
+            _eventSystem = new EventSystem();
+            _eventSystem.LoadOrInit(_session.EventData);
+            _eventAdvancedThisDay = false;
+
+            HandleStateChanged(_daySystem.CurrentState);
+        }
+
         private void OnDestroy()
         {
             if (_daySystem != null)

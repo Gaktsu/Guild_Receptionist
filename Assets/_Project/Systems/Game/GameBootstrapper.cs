@@ -68,7 +68,13 @@ namespace Project.Systems.Game
         [ContextMenu("Force New Game")]
         public void ForceNewGame()
         {
-            Session?.NewGame();
+            if (Session == null)
+            {
+                return;
+            }
+
+            Session.NewGame();
+            _dayFlowOrchestrator?.RestartFlow();
         }
 
         [ContextMenu("Force Save")]
