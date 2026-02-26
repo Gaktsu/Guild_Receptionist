@@ -157,6 +157,7 @@ namespace Project.Systems.Day
                 case DayState.DayEnd:
                     var prevDay = _session.CurrentDay;
                     SyncEventDataToSession();
+                    _eventAdvancedThisDay = false;
                     _session.NextDay();
                     _eventAdvancedThisDay = false;
                     Debug.Log($"[DayFlow] DayEnd — Day {prevDay} → Day {_session.CurrentDay} 전환, 저장 완료");
